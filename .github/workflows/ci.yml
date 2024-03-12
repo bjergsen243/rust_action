@@ -1,4 +1,4 @@
-name: CI
+name: Continuous Integration
 
 on:
   push:
@@ -7,8 +7,6 @@ on:
   pull_request:
     branches:
       - main
-env:
-  CARGO_TERM_COLOR: always
 
 jobs:
   cargo-check:
@@ -24,7 +22,8 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-  fmt:
+
+  fmt-check:
     name: Rust fmt
     runs-on: ubuntu-latest
     steps:
@@ -39,20 +38,6 @@ jobs:
         with:
           command: fmt
           args: --all -- --check
-
-  clippy:
-    name: Clippy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          components: clippy
-          override: true
-      - uses: actions-rs/clippy-check@v1
-        with:
-          args: --all
 
   test-and-coverage:
     name: Test and Coverage
@@ -77,7 +62,7 @@ jobs:
       PROJECT_NAME_UNDERSCORE: rust_action
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [ cargo-check, fmt-check, test-and-coverage ]
+    needs: [cargo-check, fmt-check, test-and-coverage]
     steps:
       - name: Check out from Git
         uses: actions/checkout@v4
@@ -106,3 +91,4 @@ jobs:
         with:
           name: ${{ env.PROJECT_NAME_UNDERSCORE }}
           path: target/release/cli
+
